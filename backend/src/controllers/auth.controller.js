@@ -16,21 +16,21 @@ const signUpUser = async (req, res) => {
     if (!(username && email && password)) {
       return res
         .status(400)
-        .json(new ApiError(400, "All input is required", null));
-    }
-
-    const isUserExists = await User.findOne({ email });
-    if (isUserExists) {
-      return res
-        .status(409)
-        .json(new ApiError(409, "User Already Exists", null));
+        .json(new ApiError(400, "All inputs are required", null));
     }
 
     const isUsernameTaken = await User.findOne({ username });
     if (isUsernameTaken) {
       return res
         .status(400)
-        .json(new ApiError(400, "Username Already Taken", null));
+        .json(new ApiError(400, "Username is already taken", null));
+    }
+
+    const isUserExists = await User.findOne({ email });
+    if (isUserExists) {
+      return res
+        .status(409)
+        .json(new ApiError(409, "User already exists with this email", null));
     }
 
     if (password.length < 6) {
@@ -51,7 +51,7 @@ const signUpUser = async (req, res) => {
       .cookie("token", user.createJWT(), cookieOptions)
       .status(201)
       .json(
-        new ApiResponse(201, "User Created Successfully", {
+        new ApiResponse(201, "User signup successfully", {
           ...user._doc,
           password: undefined,
         })
