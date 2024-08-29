@@ -86,7 +86,7 @@ const signInUser = async (req, res) => {
     }
 
     return res
-      .cookie("token", user.createJWT(), cookieOptions)
+      .cookie("accessToken", user.createJWT(), cookieOptions)
       .status(200)
       .json(
         new ApiResponse(200, "User login successfully", {
@@ -124,7 +124,7 @@ const signInUserWithGoogle = async (req, res) => {
     }
 
     return res
-      .cookie("token", user.createJWT(), cookieOptions)
+      .cookie("accessToken", user.createJWT(), cookieOptions)
       .status(200)
       .json(
         new ApiResponse(200, "User login successfully", {
