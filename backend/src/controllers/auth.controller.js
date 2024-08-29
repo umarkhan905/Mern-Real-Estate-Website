@@ -6,9 +6,10 @@ import { ENV_VARS } from "../config/envVars.js";
 const cookieOptions = {
   httpOnly: true,
   secure: ENV_VARS.NODE_ENV === "production",
-  maxAge: Date.now() + 3 * 24 * 60 * 60 * 1000,
+  maxAge: Date.now() + 7 * 24 * 60 * 60 * 1000,
   sameSite: "strict",
 };
+
 const signUpUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -47,15 +48,12 @@ const signUpUser = async (req, res) => {
       password,
     });
 
-    return res
-      .cookie("token", user.createJWT(), cookieOptions)
-      .status(201)
-      .json(
-        new ApiResponse(201, "User signup successfully", {
-          ...user._doc,
-          password: undefined,
-        })
-      );
+    return res.status(201).json(
+      new ApiResponse(201, "User signup successfully", {
+        ...user._doc,
+        password: undefined,
+      })
+    );
   } catch (error) {
     console.log("Error in signUpUser", error);
     return res
@@ -64,4 +62,44 @@ const signUpUser = async (req, res) => {
   }
 };
 
-export { signUpUser };
+const signInUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!(email && password)) {
+      return res
+        .status(400)
+        .json(new ApiError(400, "All inputs are required", null));
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json(new ApiError(400, "Incorrect email or password", null));
+    }
+
+    const isPasswordMatch = await user.isPasswordMatch(password);
+    if (!isPasswordMatch) {
+      return res
+        .status(400)
+        .json(new ApiError(400, "Incorrect email or password", null));
+    }
+
+    return res
+      .cookie("token", user.createJWT(), cookieOptions)
+      .status(200)
+      .json(
+        new ApiResponse(200, "User login successfully", {
+          ...user._doc,
+          password: undefined,
+        })
+      );
+  } catch (error) {
+    console.log("Error in signInUser", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
+export { signUpUser, signInUser };
