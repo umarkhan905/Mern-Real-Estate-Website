@@ -102,4 +102,42 @@ const signInUser = async (req, res) => {
   }
 };
 
-export { signUpUser, signInUser };
+const signInUserWithGoogle = async (req, res) => {
+  try {
+    const { username, email, avatar } = req.body;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8);
+
+      user = await User.create({
+        username:
+          username.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-8),
+        email,
+        avatar,
+        password: generatedPassword,
+      });
+    }
+
+    return res
+      .cookie("token", user.createJWT(), cookieOptions)
+      .status(200)
+      .json(
+        new ApiResponse(200, "User login successfully", {
+          ...user._doc,
+          password: undefined,
+        })
+      );
+  } catch (error) {
+    console.log("Error in signInUserWithGoogle", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
+export { signUpUser, signInUser, signInUserWithGoogle };
