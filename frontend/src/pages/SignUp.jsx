@@ -77,7 +77,7 @@ const SignUp = () => {
           onChange={handleChange}
           value={formData.password}
         />
-        {error && <p className="text-red-500">{error}</p>}
+        {error && <p className="text-red-500">**{error}</p>}
         <button
           type="submit"
           disabled={loading}
