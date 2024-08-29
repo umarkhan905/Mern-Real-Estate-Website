@@ -39,7 +39,7 @@ const SignIn = () => {
         return;
       }
 
-      dispatch(loginSuccess(data.user));
+      dispatch(loginSuccess(data.data));
       navigate("/");
       toast.success(data.message || "User login successfully");
     } catch (error) {
