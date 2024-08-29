@@ -1,15 +1,20 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+} from "../redux/user/userSlice";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,8 +24,7 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setError("");
-      setLoading(true);
+      dispatch(loginStart());
       const res = await fetch("/api/v1/auth/signin", {
         method: "POST",
         headers: {
@@ -31,19 +35,16 @@ const SignIn = () => {
       const data = await res.json();
 
       if (!data.success) {
-        setError(data.message);
-        setLoading(false);
+        dispatch(loginFailure(data.message));
         return;
       }
 
-      setLoading(false);
-      setError("");
+      dispatch(loginSuccess(data.user));
       navigate("/");
       toast.success(data.message || "User login successfully");
     } catch (error) {
       console.log("Error in signup", error);
-      setError("Something went wrong while connecting to server");
-      setLoading(false);
+      dispatch(loginFailure("Something went wrong while connecting to server"));
     }
   };
   return (
