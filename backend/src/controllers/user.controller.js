@@ -26,6 +26,13 @@ const updateUserProfile = async (req, res) => {
           new ApiError(400, "Please provide at least one field to update", null)
         );
     }
+    if (password && password.length < 6) {
+      return res
+        .status(400)
+        .json(
+          new ApiError(400, "Password must be at least 6 characters", null)
+        );
+    }
 
     const user = await User.findByIdAndUpdate(
       id,

@@ -7,14 +7,27 @@ import {
   uploadBytesResumable,
 } from "firebase/storage";
 import { app } from "../services/firebase";
+import {
+  updateStart,
+  updateSuccess,
+  updateFailure,
+} from "../redux/user/userSlice";
+import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 
 const Profile = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const [file, setFile] = useState(null);
   const [filePercentage, setFilePercentage] = useState(0);
   const [fileUploadError, setFileUploadError] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    username: currentUser.username,
+    email: currentUser.email,
+    avatar: currentUser.avatar,
+    password: "",
+  });
   const fileRef = useRef();
+  const dispatch = useDispatch();
 
   const handleFileUpload = (file) => {
     const storage = getStorage(app);
@@ -40,9 +53,40 @@ const Profile = () => {
     );
   };
 
-  // const handleChange = (e) => {
-  //   setFormData({ ...formData, [e.target.id]: e.target.value });
-  // };
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/v1/users/${currentUser._id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        dispatch(updateFailure(data.message));
+        return;
+      }
+      dispatch(updateSuccess(data.data));
+      toast.success(data.message);
+      setFormData({
+        username: data.data.username,
+        email: data.data.email,
+        avatar: data.data.avatar,
+        password: "",
+      });
+    } catch (error) {
+      dispatch(updateFailure(error.message));
+      console.log("Error in profile page", error);
+    }
+  };
 
   useEffect(() => {
     if (file) {
@@ -52,7 +96,7 @@ const Profile = () => {
   return (
     <section className="max-w-xl mx-auto p-3">
       <h1 className="text-3xl text-center font-semibold my-7">Profile</h1>
-      <form className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <input
           onChange={(e) => setFile(e.target.files[0])}
           type="file"
@@ -62,7 +106,7 @@ const Profile = () => {
         />
         <img
           onClick={() => fileRef.current.click()}
-          src={formData.avatar || currentUser.avatar}
+          src={formData.avatar}
           alt="profile"
           className="rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2"
         />
@@ -85,6 +129,8 @@ const Profile = () => {
           id="username"
           className="border p-3 rounded-lg"
           placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
         />
         <input
           type="email"
@@ -92,6 +138,8 @@ const Profile = () => {
           id="email"
           className="border p-3 rounded-lg"
           placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
         />
         <input
           type="password"
@@ -99,11 +147,14 @@ const Profile = () => {
           id="password"
           className="border p-3 rounded-lg"
           placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
         />
+        {error && <p className="text-red-700">**{error}</p>}
         <button
           type="submit"
           className="border p-3 rounded-lg bg-slate-700 text-white hover:opacity-90 disabled:opacity-80 uppercase">
-          Update
+          {loading ? "Updating..." : "Update"}
         </button>
       </form>
 

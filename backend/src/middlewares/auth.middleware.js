@@ -1,3 +1,6 @@
+import jwt from "jsonwebtoken";
+import { ENV_VARS } from "../config/envVars.js";
+import { ApiError } from "../utils/ApiError.js";
 export const verifyJWT = async (req, res, next) => {
   try {
     const token = req.cookies["accessToken"];
@@ -7,7 +10,7 @@ export const verifyJWT = async (req, res, next) => {
         .json(new ApiError(400, "Unauthorized: No token provided", null));
     }
 
-    const decoded = await jwt.verify(token, ENV_VARS.JWT_SECRET);
+    const decoded = jwt.verify(token, ENV_VARS.JWT_SECRET);
     if (!decoded) {
       return res
         .status(400)
