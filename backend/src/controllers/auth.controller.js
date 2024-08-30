@@ -140,4 +140,17 @@ const signInUserWithGoogle = async (req, res) => {
   }
 };
 
-export { signUpUser, signInUser, signInUserWithGoogle };
+const signOutUser = async (req, res) => {
+  try {
+    return res
+      .clearCookie("accessToken", cookieOptions)
+      .status(200)
+      .json(new ApiResponse(200, "User signed out successfully", null));
+  } catch (error) {
+    console.log("Error in signOutUser", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+export { signUpUser, signInUser, signInUserWithGoogle, signOutUser };

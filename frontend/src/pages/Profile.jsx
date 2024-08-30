@@ -14,6 +14,9 @@ import {
   deleteStart,
   deleteFailure,
   deleteSuccess,
+  logoutSuccess,
+  logoutFailure,
+  logoutStart,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -114,6 +117,27 @@ const Profile = () => {
     }
   };
 
+  const handleSignOutAccount = async () => {
+    try {
+      dispatch(logoutStart());
+      const res = await fetch("/api/v1/auth/signout", {
+        method: "POST",
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        dispatch(logoutFailure(data.message));
+        return;
+      }
+
+      dispatch(logoutSuccess());
+      toast.success(data.message);
+    } catch (error) {
+      dispatch(logoutFailure(error.message));
+      console.log("Error in profile page", error);
+      toast.error(error.message);
+    }
+  };
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
@@ -188,7 +212,9 @@ const Profile = () => {
         <span className="cursor-pointer" onClick={handleDeleteAccount}>
           Delete Account
         </span>
-        <span className="cursor-pointer">Sign Out</span>
+        <span className="cursor-pointer" onClick={handleSignOutAccount}>
+          Sign Out
+        </span>
       </div>
     </section>
   );
