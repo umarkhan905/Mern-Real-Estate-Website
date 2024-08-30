@@ -1,6 +1,7 @@
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
+import { cookieOptions } from "./auth.controller.js";
 
 const updateUserProfile = async (req, res) => {
   try {
@@ -59,4 +60,36 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-export { updateUserProfile };
+const deleteUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (req.user._id !== id) {
+      return res
+        .status(400)
+        .json(
+          new ApiError(
+            400,
+            "Unauthorized: You are not authorized to delete this profile",
+            null
+          )
+        );
+    }
+
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json(new ApiError(404, "User not found", null));
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "User deleted successfully", null));
+  } catch (error) {
+    console.log("Error in deleteUserProfile", error);
+    return res
+      .clearCookie("accessToken", cookieOptions)
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
+export { updateUserProfile, deleteUserProfile };

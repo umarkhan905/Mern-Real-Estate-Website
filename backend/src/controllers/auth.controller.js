@@ -3,7 +3,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { ENV_VARS } from "../config/envVars.js";
 
-const cookieOptions = {
+export const cookieOptions = {
   httpOnly: true,
   secure: ENV_VARS.NODE_ENV === "production",
   maxAge: Date.now() + 7 * 24 * 60 * 60 * 1000,

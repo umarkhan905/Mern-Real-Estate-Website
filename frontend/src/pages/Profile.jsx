@@ -11,6 +11,9 @@ import {
   updateStart,
   updateSuccess,
   updateFailure,
+  deleteStart,
+  deleteFailure,
+  deleteSuccess,
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -88,6 +91,29 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      dispatch(deleteStart());
+      const res = await fetch(`/api/v1/users/${currentUser._id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        dispatch(deleteFailure(data.message));
+        toast.error(data.message);
+        return;
+      }
+
+      dispatch(deleteSuccess());
+      toast.success(data.message);
+    } catch (error) {
+      dispatch(deleteFailure(error.message));
+      toast.error(error.message);
+      console.log("Error in profile page", error);
+    }
+  };
+
   useEffect(() => {
     if (file) {
       handleFileUpload(file);
@@ -159,7 +185,9 @@ const Profile = () => {
       </form>
 
       <div className="flex items-center justify-between mt-2 text-red-700">
-        <span className="cursor-pointer">Delete Account</span>
+        <span className="cursor-pointer" onClick={handleDeleteAccount}>
+          Delete Account
+        </span>
         <span className="cursor-pointer">Sign Out</span>
       </div>
     </section>
