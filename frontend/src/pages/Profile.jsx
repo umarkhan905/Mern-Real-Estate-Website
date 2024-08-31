@@ -20,6 +20,7 @@ import {
 } from "../redux/user/userSlice";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 
 const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -206,6 +207,11 @@ const Profile = () => {
           className="border p-3 rounded-lg bg-slate-700 text-white hover:opacity-90 disabled:opacity-80 uppercase">
           {loading ? "Updating..." : "Update"}
         </button>
+        <Link
+          to="/create-listing"
+          className="border p-3 rounded-lg bg-green-700 text-white hover:opacity-90 uppercase text-center">
+          create listing
+        </Link>
       </form>
 
       <div className="flex items-center justify-between mt-2 text-red-700">

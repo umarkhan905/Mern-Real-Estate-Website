@@ -62,3 +62,5 @@ const createListing = async (req, res) => {
       .json(new ApiError(500, "Internal Server Error", error.stack));
   }
 };
+
+export { createListing };
