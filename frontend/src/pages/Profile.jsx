@@ -151,7 +151,24 @@ const Profile = () => {
     }
   };
 
-  const handleListingDelete = async (id) => {};
+  const handleListingDelete = async (id) => {
+    try {
+      const res = await fetch(`/api/v1/listings/${id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (data.success === false) {
+        toast.error(data.message);
+        return;
+      }
+
+      toast.success(data.message);
+      setUserListings(userListings.filter((listing) => listing._id !== id));
+    } catch (error) {
+      console.log("Error in handleListingDelete", error);
+    }
+  };
 
   useEffect(() => {
     if (file) {
@@ -239,12 +256,6 @@ const Profile = () => {
       <button onClick={handleShowListings} className="text-green-700 w-full">
         Show Listings
       </button>
-
-      {userListings.length === 0 && (
-        <p className="text-slate-700 text-center font-bold mt-7">
-          No listings found
-        </p>
-      )}
       {userListings && userListings.length > 0 && (
         <div className="flex flex-col gap-4">
           <h1 className="text-center mt-7 text-2xl font-semibold">

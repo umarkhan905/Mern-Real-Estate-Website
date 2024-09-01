@@ -69,4 +69,24 @@ const getUserListings = async (req, res) => {
   }
 };
 
-export { createListing, getUserListings };
+const deleteListing = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const listing = await Listing.findByIdAndDelete(id);
+
+    if (!listing) {
+      return res.status(404).json(new ApiError(404, "No listing found", null));
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Listing deleted successfully", null));
+  } catch (error) {
+    console.log("Error in deleteListing", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
+export { createListing, getUserListings, deleteListing };
