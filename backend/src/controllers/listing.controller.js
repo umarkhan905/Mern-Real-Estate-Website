@@ -51,4 +51,22 @@ const createListing = async (req, res) => {
   }
 };
 
-export { createListing };
+const getUserListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({ user: req.user._id });
+    if (!listings) {
+      return res.status(404).json(new ApiError(404, "No listings found", null));
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Listings fetched successfully", listings));
+  } catch (error) {
+    console.log("Error in getUserListings", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
+export { createListing, getUserListings };
