@@ -1,3 +1,6 @@
+import { Listing } from "../models/listing.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 const createListing = async (req, res) => {
   try {
     const {
@@ -15,25 +18,10 @@ const createListing = async (req, res) => {
       imageUrls,
     } = req.body;
 
-    if (
-      !(
-        name &&
-        description &&
-        address &&
-        regularPrice &&
-        discountedPrice &&
-        bathrooms &&
-        bedrooms &&
-        furnished &&
-        parking &&
-        type &&
-        offer &&
-        imageUrls
-      )
-    ) {
+    if (imageUrls.length === 0) {
       return res
         .status(400)
-        .json(new ApiError(400, "All inputs are required", null));
+        .json(new ApiError(400, "Please select at least one image", null));
     }
 
     const listing = await Listing.create({
