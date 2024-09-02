@@ -3,6 +3,7 @@ import {
   About,
   CreateListing,
   Home,
+  Listing,
   Profile,
   SignIn,
   SignUp,
@@ -11,12 +12,8 @@ import {
 import { Header, PrivateRoute } from "./components";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSelector } from "react-redux";
 
 const App = () => {
-  const { currentUser } = useSelector((state) => state.user);
-  console.log(currentUser);
-
   return (
     <>
       <ToastContainer />
@@ -45,6 +42,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <UpdateListing />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/listing/:id"
+          element={
+            <PrivateRoute>
+              <Listing />
             </PrivateRoute>
           }
         />
