@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ListingItem } from "../components";
 
 const Search = () => {
   const [searchFormData, setSearchFormData] = useState({
@@ -216,6 +217,23 @@ const Search = () => {
         <h1 className="text-3xl font-semibold border-b p-3 text-slate-700 mt-5">
           Listing results:
         </h1>
+        <div className="p-7 flex flex-wrap gap-4 ">
+          {loading && (
+            <p className="text-xl text-slate-700 w-full text-center">
+              Loading...
+            </p>
+          )}
+          {!loading && error && (
+            <p className="text-xl text-slate-700">{error}</p>
+          )}
+          {!loading &&
+            !error &&
+            searchedLists &&
+            searchedLists.length > 0 &&
+            searchedLists.map((listing) => (
+              <ListingItem key={listing._id} listing={listing} />
+            ))}
+        </div>
       </div>
     </div>
   );

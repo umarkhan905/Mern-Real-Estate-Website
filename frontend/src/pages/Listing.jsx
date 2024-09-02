@@ -94,7 +94,10 @@ const Listing = () => {
             <p className="text-2xl font-semibold">
               {listing?.name} - ${" "}
               {listing?.offer
-                ? listing?.discountedPrice?.toLocaleString("en-US")
+                ? (
+                    Number(listing.regularPrice) -
+                    Number(listing.discountedPrice)
+                  ).toLocaleString("en-US")
                 : listing?.regularPrice?.toLocaleString("en-US")}
               {listing.type === "rent" && " / month"}
             </p>
@@ -109,7 +112,7 @@ const Listing = () => {
               </p>
               {listing?.offer && (
                 <p className="bg-green-900 w-full max-w-[200px] text-white text-center p-1 rounded-md">
-                  ${+listing.regularPrice - +listing.discountedPrice} OFF
+                  ${listing.discountedPrice.toLocaleString("en-US")} discount
                 </p>
               )}
             </div>
