@@ -1,5 +1,13 @@
 import { Routes, Route } from "react-router-dom";
-import { About, CreateListing, Home, Profile, SignIn, SignUp } from "./pages";
+import {
+  About,
+  CreateListing,
+  Home,
+  Profile,
+  SignIn,
+  SignUp,
+  UpdateListing,
+} from "./pages";
 import { Header, PrivateRoute } from "./components";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -29,6 +37,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <CreateListing />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/update-listing/:id"
+          element={
+            <PrivateRoute>
+              <UpdateListing />
             </PrivateRoute>
           }
         />

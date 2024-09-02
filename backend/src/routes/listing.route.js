@@ -5,6 +5,7 @@ import {
   getUserListings,
   deleteListing,
   editListing,
+  getListingById,
 } from "../controllers/listing.controller.js";
 
 const router = Router();
@@ -17,6 +18,7 @@ router
 router
   .route("/:id")
   .delete(verifyJWT, deleteListing)
-  .patch(verifyJWT, editListing);
+  .patch(verifyJWT, editListing)
+  .get(verifyJWT, getListingById);
 
 export default router;

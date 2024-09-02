@@ -113,4 +113,29 @@ const editListing = async (req, res) => {
   }
 };
 
-export { createListing, getUserListings, deleteListing, editListing };
+const getListingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const listing = await Listing.findById(id);
+    if (!listing) {
+      return res.status(404).json(new ApiError(404, "No listing found", null));
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Listing fetched successfully", listing));
+  } catch (error) {
+    console.log("Error in getListingById", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
+export {
+  createListing,
+  getUserListings,
+  deleteListing,
+  editListing,
+  getListingById,
+};
