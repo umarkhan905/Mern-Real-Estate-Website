@@ -13,7 +13,7 @@ const Header = () => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
       urlParams.set("query", query);
-      navigate(`/search/?${urlParams.toString()}`);
+      navigate(`/search?${urlParams.toString()}`);
     } catch (error) {
       console.log("Error in handleSubmit", error);
     }

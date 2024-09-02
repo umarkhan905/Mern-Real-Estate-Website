@@ -141,17 +141,17 @@ const getSearchListings = async (req, res) => {
     const order = req.query.order || "desc";
 
     let offer = req.query.offer;
-    if (!offer) {
+    if (!offer || offer === "false") {
       offer = { $in: [true, false] };
     }
 
     let furnished = req.query.furnished;
-    if (!furnished) {
+    if (!furnished || furnished === "false") {
       furnished = { $in: [true, false] };
     }
 
     let parking = req.query.parking;
-    if (!parking) {
+    if (!parking || parking === "false") {
       parking = { $in: [true, false] };
     }
 
@@ -171,7 +171,7 @@ const getSearchListings = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit);
 
-    if (!listings) {
+    if (!listings.length) {
       return res.status(404).json(new ApiError(404, "No listings found", null));
     }
 
