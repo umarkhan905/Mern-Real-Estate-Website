@@ -132,10 +132,65 @@ const getListingById = async (req, res) => {
   }
 };
 
+const getSearchListings = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 9;
+    const page = parseInt(req.query.page) || 1;
+    const query = req.query.query || "";
+    const sort = req.query.sort || "createdAt";
+    const order = req.query.order || "desc";
+
+    let offer = req.query.offer;
+    if (!offer) {
+      offer = { $in: [true, false] };
+    }
+
+    let furnished = req.query.furnished;
+    if (!furnished) {
+      furnished = { $in: [true, false] };
+    }
+
+    let parking = req.query.parking;
+    if (!parking) {
+      parking = { $in: [true, false] };
+    }
+
+    let type = req.query.type;
+    if (!type || type === "all") {
+      type = { $in: ["rent", "sale"] };
+    }
+
+    const listings = await Listing.find({
+      name: { $regex: query, $options: "i" },
+      offer,
+      furnished,
+      parking,
+      type,
+    })
+      .sort({ [sort]: order })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    if (!listings) {
+      return res.status(404).json(new ApiError(404, "No listings found", null));
+    }
+
+    return res
+      .status(200)
+      .json(new ApiResponse(200, "Listings fetched successfully", listings));
+  } catch (error) {
+    console.log("Error in getSearchListings", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
 export {
   createListing,
   getUserListings,
   deleteListing,
   editListing,
   getListingById,
+  getSearchListings,
 };
