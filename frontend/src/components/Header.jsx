@@ -1,9 +1,31 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaSearch } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 const Header = () => {
+  const [query, setQuery] = useState("");
   const { currentUser } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      urlParams.set("query", query);
+      navigate(`/search/?${urlParams.toString()}`);
+    } catch (error) {
+      console.log("Error in handleSubmit", error);
+    }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const searchTerm = urlParams.get("query");
+    if (searchTerm) {
+      setQuery(searchTerm);
+    }
+  }, []);
   return (
     <header className="bg-slate-200 shadow-md">
       <nav className="max-w-6xl mx-auto flex justify-between items-center  px-3 py-2">
@@ -16,13 +38,19 @@ const Header = () => {
         </Link>
 
         {/* Search Bar */}
-        <form className="flex items-center bg-slate-100 rounded-lg p-2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center bg-slate-100 rounded-lg p-2">
           <input
             type="tex"
             className="w-24 sm:w-64 bg-transparent outline-none"
             placeholder="Search..."
+            onChange={(e) => setQuery(e.target.value)}
+            value={query}
           />
-          <FaSearch className="text-slate-600" />
+          <button>
+            <FaSearch className="text-slate-600" />
+          </button>
         </form>
 
         {/* Navigation Links */}
