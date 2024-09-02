@@ -92,4 +92,29 @@ const deleteUserProfile = async (req, res) => {
   }
 };
 
-export { updateUserProfile, deleteUserProfile };
+const getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+
+    if (!user) {
+      return res.status(404).json(new ApiError(404, "User not found", null));
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, "User fetched successfully", {
+          ...user._doc,
+          password: undefined,
+        })
+      );
+  } catch (error) {
+    console.log("Error in getUserById", error);
+    return res
+      .status(500)
+      .json(new ApiError(500, "Internal Server Error", error.stack));
+  }
+};
+
+export { updateUserProfile, deleteUserProfile, getUserById };
