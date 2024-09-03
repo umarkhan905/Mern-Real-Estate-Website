@@ -11,10 +11,12 @@ const Search = () => {
     offer: false,
     sort: "created_at",
     order: "desc",
+    page: 1,
   });
   const [searchedLists, setSearchedLists] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showMore, setShowMore] = useState(false);
 
   const navigate = useNavigate();
 
@@ -62,6 +64,7 @@ const Search = () => {
     urlParams.set("offer", searchFormData.offer);
     urlParams.set("sort", searchFormData.sort);
     urlParams.set("order", searchFormData.order);
+    urlParams.set("page", searchFormData.page);
     const searchParams = urlParams.toString();
     navigate(`/search?${searchParams}`);
   };
@@ -75,8 +78,18 @@ const Search = () => {
     const offer = urlParams.get("offer");
     const sort = urlParams.get("sort");
     const order = urlParams.get("order");
+    const page = urlParams.get("page");
 
-    if (query || type || parking || furnished || offer || sort || order) {
+    if (
+      query ||
+      type ||
+      parking ||
+      furnished ||
+      offer ||
+      sort ||
+      order ||
+      page
+    ) {
       setSearchFormData({
         query: query || "",
         type: type || "all",
@@ -85,6 +98,7 @@ const Search = () => {
         offer: offer === "true",
         sort: sort || "created_at",
         order: order || "desc",
+        page: page || 1,
       });
     }
 
@@ -92,6 +106,7 @@ const Search = () => {
       try {
         setLoading(true);
         setError(null);
+        setShowMore(false);
         const searchParams = urlParams.toString();
         const response = await fetch(`/api/v1/listings/search?${searchParams}`);
         const data = await response.json();
@@ -100,6 +115,12 @@ const Search = () => {
           setError(data.message);
           setLoading(false);
           return;
+        }
+
+        if (data.data.length > 8) {
+          setShowMore(true);
+        } else {
+          setShowMore(false);
         }
 
         setSearchedLists(data.data);
@@ -111,6 +132,23 @@ const Search = () => {
 
     getSearchList();
   }, [location.search]);
+
+  const handleShowMore = async () => {
+    try {
+      const urlParams = new URLSearchParams(location.search);
+
+      urlParams.set("page", parseInt(urlParams.get("page")) + 1);
+      const res = await fetch(`api/v1/listings/search?${urlParams.toString()}`);
+      const data = await res.json();
+
+      if (!data.statusCode >= 400 || data.data.length < 9) {
+        setShowMore(false);
+      }
+      setSearchedLists([...searchedLists, ...data.data]);
+    } catch (error) {
+      console.log("Error in handleShowMore", error);
+    }
+  };
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -233,6 +271,13 @@ const Search = () => {
             searchedLists.map((listing) => (
               <ListingItem key={listing._id} listing={listing} />
             ))}
+          {!loading && showMore && (
+            <button
+              className="text-green-700 hover:underline p-7 text-center w-full"
+              onClick={handleShowMore}>
+              Show More
+            </button>
+          )}
         </div>
       </div>
     </div>
